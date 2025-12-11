@@ -1,0 +1,40 @@
+[project]
+name = "Turn-base_Casino"
+version = "1.0.0"
+description = "Turn-base Casino on Python on OOP."
+requires-python = ">=3.13.5"
+dependencies = [
+    "pytest>=8.4.2",
+]
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies=[
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.2",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--cov=src",
+  "--cov-branch",
+  "--cov-report=term-missing",
+  "-q",
+]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+parallel = true
+omit = ["*/__init__.py", "*/main.py", "*/casino.py", "*/common/*", "*/enums/*", "*/dependencies/*"]
+
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
