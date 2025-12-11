@@ -14,9 +14,9 @@ def main() -> None:
         while True:
             # read user command
             steps = input("Enter quantity of simulation steps: ")
-            seed = int("Enter seed or just press enter to have a random seed: ")
-            # if not seed:
-            # seed = "EOF"
+            seed_input = input(
+                "Enter seed or just press enter to have a random seed: ").strip()
+            seed = int(seed_input) if seed_input else None
             logger.info(
                 f"User entered simulation parameters: steps - {steps}, seed - {seed}")
 

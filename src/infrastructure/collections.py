@@ -8,7 +8,10 @@ class Player_Collection:
     def __len__(self):
         return len(self._players)
 
-    def addend(self, player):
+    def __iter__(self):
+        return iter(self._players)
+
+    def append(self, player):
         self._players.append(player)
 
     def remove(self, player):
@@ -25,8 +28,16 @@ class Goose_Collection:
     def __len__(self):
         return len(self._geese)
 
-    def addend(self, goose):
+    def __iter__(self):
+        return iter(self._geese)
+
+    def append(self, goose):
         self._geese.append(goose)
 
     def remove(self, goose):
         self._geese.remove(goose)
+
+
+class Casino_Collection:
+    def __init__(self):
+        self._casino_balance = {}
