@@ -17,11 +17,12 @@ def main() -> None:
             seed_input = input(
                 "Enter seed or just press enter to have a random seed: ").strip()
             seed = int(seed_input) if seed_input else None
+            user_name = input("Enter your user name: ")
             logger.info(
-                f"User entered simulation parameters: steps - {steps}, seed - {seed}")
+                f"User entered simulation parameters: steps - {steps}, seed - {seed}, user name - {user_name}")
 
             facade = Facade()
-            facade.facade(steps, seed)
+            facade.facade(user_name, steps, seed)
 
             # stop the program if stop word was given
             # if steps.lower() in ("exit", "quit"):

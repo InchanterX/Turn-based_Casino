@@ -38,6 +38,33 @@ class Goose_Collection:
         self._geese.remove(goose)
 
 
+class GeeseIncome:
+    def __init__(self):
+        self._income = {}
+
+    def add_income(self, goose_name, value):
+        self._income[goose_name] = self._income.get(goose_name, 0) + value
+
+
 class Casino_Collection:
     def __init__(self):
-        self._casino_balance = {}
+        self._data = {}
+
+    def __getItem__(self, key):
+        return self._data[key]
+
+    def __setItem__(self, key, value):
+        self._data[key] = value
+
+    def __delItem__(self, key):
+        del self._data[key]
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        return iter(self._data)
+
+
+class Casino_Income:
+    ...

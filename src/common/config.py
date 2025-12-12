@@ -17,7 +17,7 @@ LOGGING_CONFIG = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
             "mode": "a",
-            "filename": os.path.join(LOG_DIR, "algorithms.log"),
+            "filename": os.path.join(LOG_DIR, "casino.log"),
             "maxBytes": 5 * 1024 * 1024,  # 5 MB before rotating
             "backupCount": 5,
             "level": "DEBUG",
