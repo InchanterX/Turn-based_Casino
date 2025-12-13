@@ -1,8 +1,13 @@
-class Player_Collection:
+from src.infrastructure.logger import logger
+
+
+class PlayerCollection:
     def __init__(self):
         self._players = []
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
+        if isinstance(index, slice):
+            return type(self)(self._players[index])
         return self._players[index]
 
     def __len__(self):
@@ -18,11 +23,13 @@ class Player_Collection:
         self._players.remove(player)
 
 
-class Goose_Collection:
+class GooseCollection:
     def __init__(self):
         self._geese = []
 
     def __getitem__(self, index):
+        if isinstance(index, slice):
+            return type(self)(self._geese[index])
         return self._geese[index]
 
     def __len__(self):
@@ -40,31 +47,33 @@ class Goose_Collection:
 
 class GeeseIncome:
     def __init__(self):
+        self._logger = logger
         self._income = {}
 
+    def __getitem__(self, goose_name: str):
+        return self._income.get(goose_name, 0)
+
     def add_income(self, goose_name, value):
-        self._income[goose_name] = self._income.get(goose_name, 0) + value
+        current = self._income(goose_name, 0)
+        self._income[goose_name] = current + value
+        logger.info(
+            f"Goose {goose_name} earned {value}. Money in total: {self._income[goose_name]}")
 
 
-class Casino_Collection:
+class CasinoCollection:
     def __init__(self):
-        self._data = {}
+        self._logger = logger
+        self._balance = 100000
+        self._fluctuation = 0
 
-    def __getItem__(self, key):
-        return self._data[key]
+    def gain(self, value):
+        self._balance += value
+        self._fluctuation += value
+        logger.info(
+            f"Casino earned {value}. Money in total: {self._balance}. Current fluctuation: {self._fluctuation}")
 
-    def __setItem__(self, key, value):
-        self._data[key] = value
-
-    def __delItem__(self, key):
-        del self._data[key]
-
-    def __len__(self):
-        return len(self._data)
-
-    def __iter__(self):
-        return iter(self._data)
-
-
-class Casino_Income:
-    ...
+    def loss(self, value):
+        self._balance -= value
+        self._fluctuation -= value
+        logger.info(
+            f"Casino lost {value}. Money in total: {self._balance}. Current fluctuation: {self._fluctuation}")

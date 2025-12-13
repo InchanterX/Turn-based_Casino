@@ -1,4 +1,4 @@
-from src.infrastructure.random_generator import SeedGenerator
+from random import seed
 from src.infrastructure.casino import Casino
 # from src.infrastructure.player import Player
 
@@ -8,12 +8,17 @@ class Facade:
         pass
 
     def run_simulation(self, default_name: str, steps: int = 10, input_seed: int | None = None) -> None:
-        seed_generator = SeedGenerator()
-        seed = seed_generator.generate_random_seed(input_seed)
+        # seed_generator = SeedGenerator()
+        # seed = seed_generator.generate_random_seed(input_seed)
+        seed(input_seed)
 
         casino = Casino()
         # player = Player()
         casino.register_default(default_name)
 
-        for _ in range(steps):
-            casino.random_event()
+        print("----------------------------------")
+        for step in range(steps):
+            if casino.players_status_check():
+                break
+            casino.random_event(step)
+            print("----------------------------------")

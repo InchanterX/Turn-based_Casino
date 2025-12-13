@@ -1,7 +1,7 @@
 from random import randint, seed
 
 
-class SeedGenerator:
+class RandomGenerator:
     def __init__(self):
         self.seed_value = None
 

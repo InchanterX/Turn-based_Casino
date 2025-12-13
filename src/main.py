@@ -22,7 +22,7 @@ def main() -> None:
                 f"User entered simulation parameters: steps - {steps}, seed - {seed}, user name - {user_name}")
 
             facade = Facade()
-            facade.facade(user_name, steps, seed)
+            facade.run_simulation(user_name, int(steps), seed)
 
             # stop the program if stop word was given
             # if steps.lower() in ("exit", "quit"):
@@ -32,8 +32,9 @@ def main() -> None:
 
     except KeyboardInterrupt:
         print("Exiting the console.")
-    except Exception as e:
-        print(e)
+    # except Exception as e:
+    #     logger.error(e)
+    #     print(e)
 
 
 if __name__ == "__main__":
