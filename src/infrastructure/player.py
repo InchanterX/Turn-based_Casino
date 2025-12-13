@@ -1,5 +1,6 @@
 from src.infrastructure.logger import logger
 from src.infrastructure.chips import ChipsCollection
+from src.infrastructure.effects import EffectsCollection
 from src.infrastructure.constants import DEFAULT_PLAYER_HEALTH, DEFAULT_PLAYER_LUCK
 
 
@@ -11,6 +12,7 @@ class Player:
         self.luck = DEFAULT_PLAYER_LUCK
         self.health = DEFAULT_PLAYER_HEALTH
         self.chips = ChipsCollection()
+        self.effects = EffectsCollection()
 
     def get_chips_value(self):
         '''Total chips value'''

@@ -1,6 +1,7 @@
 from src.infrastructure.logger import logger
 from src.infrastructure.constants import ADVERTISEMENTS
-from random import choice, randint
+from random import choice, randint, random
+from src.infrastructure.goose import GoldenGoose
 
 
 class Events:
@@ -38,6 +39,7 @@ class Events:
         return choice(self.casino.geese)
 
     def get_random_event(self):
+        '''Chose random event from the list by their weight'''
         total = sum(possibility for _, possibility, _ in self.events)
         result = randint(1, total)
         current = 0
@@ -57,6 +59,7 @@ class Events:
         return f"[📺 Adv] {choice(ADVERTISEMENTS)}"
 
     def stroke_event(self) -> bool:
+        '''Hit player with stroke'''
         player = self._random_player()
         player.lose_health(100)
         logger.info(
@@ -76,7 +79,7 @@ class Events:
         bet_amount = randint(10, max_bet)
 
         if player.get_chips_value() < bet_amount:
-            return f"🎰 {player.name} wanted to bet {bet_amount} but is broke!"
+            return f"[🎰] {player.name} wanted to bet {bet_amount} but is broke!"
 
         # 45% шанс выигрыша, 55% проигрыша (казино должно выигрывать)
         if random() < 0.45:
@@ -99,18 +102,33 @@ class Events:
         goose = self._random_goose()
 
         if player is None or goose is None:
-            return "🦢 No players or geese for attack"
+            return "[🦢 Goose] No players or geese for attack"
 
-        # check if goose can apply damage
-        if hasattr(goose, 'apply_damage'):
-            # chosen goose is WarGoose or HonkGoose
-            goose.apply_damage(player)
-        else:
-            # Обычный гусь
-            player.lose_health(goose.damage)
+        # Attack
+        damage = goose.attack_player(player)
 
-        logger.info(f"Goose {goose.name} attacked {player.name}")
-        return f"🦢 ATTACK: {goose.name} attacked {player.name} for {goose.damage} damage!"
+        # Stole prepare
+        stolen = 0
+        if hasattr(goose, 'steal_from_player'):
+            stolen = goose.steal_from_player(player)
+
+        # Golden goose case
+        collected_from_geese = 0
+        if hasattr(goose, 'collect_from_geese'):
+            collected_from_geese = goose.collect_from_geese(self.casino.geese)
+
+        message_parts = []
+        message_parts.append(
+            f"[🦢 Goose] {goose.name} attacked {player.name} for {damage} damage!")
+
+        if stolen > 0:
+            message_parts.append(f"stole {stolen}")
+
+        if collected_from_geese > 0:
+            message_parts.append(
+                f"collected {collected_from_geese} from other geese")
+
+        return " | ".join(message_parts)
 
     def goose_steal_event(self) -> str:
         '''Goose steals money from player'''
@@ -118,67 +136,99 @@ class Events:
         goose = self._random_goose()
 
         if player is None or goose is None:
-            return "💰 No players or geese for stealing"
+            return "[💰 Steal]: No players or geese for stealing"
 
-        # Сумма кражи от 5 до 50 или 10% от баланса
-        max_steal = min(50, player.get_chips_value() // 10)
-        if max_steal < 5:
-            return f"💰 {goose.name} tried to steal from {player.name} but they're too poor!"
+        # Actually steal
+        if hasattr(goose, 'steal_from_player'):
+            stolen = goose.steal_from_player(player)
+            if stolen > 0:
+                logger.info(
+                    f"Goose {goose.name} stole {stolen} from {player.name}")
 
-        steal_amount = randint(5, max_steal)
+                # Additional effects for UnluckyGoose
+                if goose.__class__.__name__ == "UnluckyGoose":
+                    luck_reduction = stolen // 2
+                    player.decrease_luck(luck_reduction)
+                    player.effects.add(
+                        "bad_luck", duration=3, power=luck_reduction)
+                    return f"[💰☠️ Curse]: {goose.name} stole {stolen} and cursed {player.name}'s luck (-{luck_reduction})!"
 
-        if player.lesion(steal_amount):
-            goose.balance += steal_amount
-            logger.info(
-                f"Goose {goose.name} stole {steal_amount} from {player.name}")
-
-            # Проверяем, не GoldenGoose ли это
-            if hasattr(goose, 'return_money'):
-                # GoldenGoose возвращает часть денег
-                returned = goose.return_money(player, steal_amount)
-                return f"💰 STEAL & RETURN: {goose.name} stole {steal_amount} but returned {returned} to {player.name}!"
+                return f"[💰 Steal]: {goose.name} stole {stolen} from {player.name}!"
             else:
-                return f"💰 STEAL: {goose.name} stole {steal_amount} from {player.name}!"
+                return f"[💰 Steal]: {goose.name} failed to steal from {player.name}!"
         else:
-            return f"💰 STEAL FAILED: {goose.name} failed to steal from {player.name}!"
+            return f"[💰 Steal]: {goose.name} doesn't know how to steal!"
 
-    def geese_unite_event(self):
-        if len(self.casino.geese) >= 2:
-            goose1 = choice(self.casino.geese)
-            goose2 = choice([goose for goose in self.casino.geese])
+    def geese_unite_event(self) -> str:
+        '''Two geese unite into a group'''
+        if len(self.casino.geese) < 2:
+            return "[🦢 Geese] Not enough geese to unite"
 
-            group = goose1 + goose2
-            self.casino.geese.remove(goose1)
-            self.casino.geese.remove(goose2)
-            self.casino.geese.append(group)
-            print(f"Geese {goose1} and {goose2} gathered to group!")
+        goose1 = choice(self.casino.geese)
+        other_geese = [
+            goose for goose in self.casino.geese if goose != goose1]
+        if not other_geese:
+            return "[🦢 Geese] No other geese to unite with"
 
-    def golden_goose_event(self) -> str:
-        '''Golden goose bonus event'''
-        # Ищем GoldenGoose в коллекции
-        golden_geese = [
-            g for g in self.casino.geese if hasattr(g, 'return_money')]
+        goose2 = choice(other_geese)
 
-        if not golden_geese:
-            # Если нет GoldenGoose, создаём одного
-            from src.infrastructure.goose import GoldenGoose
-            golden_goose = GoldenGoose("Lucky Goldie")
-            self.casino.geese.append(golden_goose)
-            logger.info(f"Created new GoldenGoose: {golden_goose.name}")
-            return f"💰 GOLDEN GOOSE: A new Golden Goose '{golden_goose.name}' appeared!"
+        # Use magical __add__
+        group = goose1 + goose2
 
-        # Если есть GoldenGoose, даём бонус игроку
-        player = self._random_player()
-        if player is None:
-            return "💰 No players for golden goose bonus"
-
-        golden_goose = choice(golden_geese)
-        bonus_amount = randint(50, 200)
-
-        # GoldenGoose возвращает деньги (имитация кражи + возврат)
-        stolen = bonus_amount * 2  # Представляем, что украли в 2 раза больше
-        returned = golden_goose.return_money(player, stolen)
+        # Rearrange goose
+        self.casino.geese.remove(goose1)
+        self.casino.geese.remove(goose2)
+        self.casino.geese.append(group)
 
         logger.info(
-            f"Golden goose {golden_goose.name} gave {returned} to {player.name}")
-        return f"💰 GOLDEN BONUS: {golden_goose.name} blessed {player.name} with {returned}!"
+            f"Geese {goose1.name} and {goose2.name} united into group")
+
+        # In case of GoldenGoose party
+        if hasattr(group, 'geese'):
+            for goose in group.geese:
+                if hasattr(goose, 'collect_from_geese'):
+                    collected = goose.collect_from_geese(self.casino.geese)
+                    if collected > 0:
+                        return f"[🦢🦢💰 Unite]: {goose1.name}+{goose2.name} formed {group.name}! Golden goose collected {collected}!"
+
+        return f"[🦢🦢 Unite]: {goose1.name} and {goose2.name} united into {group.name}!"
+
+    def golden_goose_event(self) -> str:
+        '''Golden goose gives bonus money to player by steeling them from other'''
+        golden_geese = [
+            goose for goose in self.casino.geese
+            if isinstance(goose, GoldenGoose)
+        ]
+
+        # Create one
+        if not golden_geese:
+            golden_goose = GoldenGoose("Lucky One")
+            self.casino.geese.append(golden_goose)
+            logger.info(f"Created new GoldenGoose: {golden_goose.name}")
+            return f"[💰 Golden One]: A new Golden Goose '{golden_goose.name}' appeared!"
+
+        # Choose player
+        player = self._random_player()
+        if player is None:
+            return "[💰 Golden One] No players for golden goose bonus"
+
+        # Choose goose
+        golden_goose = choice(golden_geese)
+
+        # Calculating bonus
+        if golden_goose.balance > 0:
+            bonus = golden_goose.balance // 2
+            golden_goose.balance -= bonus
+            player.income(bonus)
+            logger.info(
+                f"Golden goose {golden_goose.name} gave {bonus} to {player.name}")
+            return f"[💰 Golden Gift]: {golden_goose.name} gave {bonus} to {player.name}!"
+        else:
+            # No money? Let's steal them
+            collected = golden_goose.collect_from_geese(self.casino.geese)
+            if collected > 0:
+                bonus = collected // 2
+                player.income(bonus)
+                return f"[💰 Golden Sharing]: {golden_goose.name} collected {collected}, shared {bonus} with {player.name}!"
+            else:
+                return f"[💰 Golden {golden_goose.name} wanted to help but all geese are broke!"
