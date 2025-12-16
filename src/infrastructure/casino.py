@@ -1,4 +1,5 @@
-from src.infrastructure.collections import PlayerCollection, GooseCollection, CasinoCollection
+from src.infrastructure.collections.collections import GooseCollection, CasinoCollection
+from src.infrastructure.collections.players import PlayerCollection
 from src.infrastructure.player import Player
 from src.infrastructure.goose import WarGoose, HonkGoose, UnluckyGoose, GoldenGoose
 from src.infrastructure.events import Events
@@ -28,7 +29,7 @@ class Casino:
         event_function = self.event_system.get_random_event()
         result = event_function()
         logger.info(f"Event executed with a result: {result}")
-        if result == True:
+        if result:
             pass
         else:
             print(f"({step_number + 1})[Event]: {result}")

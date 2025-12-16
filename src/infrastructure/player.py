@@ -1,6 +1,7 @@
 from src.infrastructure.logger import logger
-from src.infrastructure.chips import ChipsCollection
-from src.infrastructure.effects import EffectsCollection
+from src.infrastructure.collections.chips import ChipsCollection
+from src.infrastructure.collections.effects import EffectsCollection
+from src.infrastructure.collections.inventories import InventoryCollection
 from src.infrastructure.constants import DEFAULT_PLAYER_HEALTH, DEFAULT_PLAYER_LUCK
 
 
@@ -13,6 +14,7 @@ class Player:
         self.health = DEFAULT_PLAYER_HEALTH
         self.chips = ChipsCollection()
         self.effects = EffectsCollection()
+        self.inventory = InventoryCollection()
 
     def get_chips_value(self):
         '''Total chips value'''
@@ -30,12 +32,9 @@ class Player:
         if self.chips.remove(amount):
             self.balance -= amount
             logger.info(f"Removed {amount} from {self.name} balance")
-            print(f"Removed {amount} from your balance!")
         else:
             logger.info(
                 f"{self.name} have not enough money to less it by {amount}")
-            print(
-                f"You can't remove {amount} chips from your balance! You have only {self.chips.total_value()}")
 
     def lose_health(self, loss: int):
         '''Lose health'''

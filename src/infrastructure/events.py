@@ -52,11 +52,16 @@ class Events:
         # in case of exception
         return self.events[0][2]
 
-    def advertisement_event(self) -> str:
+    def _skip_add(self):
+        input("Skip add?\n > ")
+
+    def advertisement_event(self) -> bool:
         '''Print advertisement to the CLI'''
         logger.info(
-            f"Displayed advertisement to the player.")
-        return f"[📺 Adv] {choice(ADVERTISEMENTS)}"
+            "Displayed advertisement to the player.")
+        print(f"[📺 Adv] {choice(ADVERTISEMENTS)}")
+        self._skip_add()
+        return True
 
     def stroke_event(self) -> bool:
         '''Hit player with stroke'''
@@ -68,33 +73,82 @@ class Events:
             f"[💀 Stroke] Player {player.name} has died because of stroke! How unfortunately...")
         return True
 
-    def player_bet_event(self) -> str:
+    def _convert_to_int(self, input_str: str) -> int | None:
+        try:
+            return int(input_str)
+        except ValueError:
+            logger.exception(
+                f"Invalid input data. Unable convert {input_str} to int.")
+            print("[⚙️] Invalid input data! Enter a number!")
+            return None
+
+    def _sell_from_inventory(self, player):
+        print(
+            f"You should sell something from your inventory. You have: {player.balance}\n")
+
+    def _convert_money(self, player):
+        amount = self._ask_until_valid(
+            player, f"[🎰] How much money do you want to convert to chips? (available: {player.balance})\n > ")
+        player.chips.add(amount)
+
+    def _ask_until_valid(self, player, message: str) -> int:
+        while True:
+            raw_input = input(message)
+            bet_amount = self._convert_to_int(raw_input)
+            if bet_amount is None:
+                continue
+            if bet_amount < 0:
+                logger.warning(
+                    f"Player {player.name} tried to enter a negative quantity.")
+                print("[⚙️] This is illegal! Enter a positive integer!")
+                continue
+            if bet_amount > (player.balance + player.get_chips_value()):
+                logger.warning(
+                    f"Player {player.name} tried to enter an overflowing quantity.")
+                print(
+                    f"[⚙️] This is illegal! You have only {player.balance} money and {player.get_chips_value()} chips on your balance ({player.get_chips_value() + player.balance} in total)!")
+                continue
+            break
+        return bet_amount
+
+    def player_bet_event(self) -> bool:
         '''Event of player making a bet'''
         player = self._random_player()
         if player is None:
             logger.warning("No players to place bets.")
-            return "No players to place bets!"
+            print("No players to place bets!")
+            return False
 
-        max_bet = max(10, player.get_chips_value() // 10)
-        bet_amount = randint(10, max_bet)
+        bet_amount = self._ask_until_valid(
+            player, f"[🎰] Gamble time! Enter bet amount (available chips: {player.get_chips_value()}, money: {player.balance}):\n > ")
 
-        if player.get_chips_value() < bet_amount:
-            return f"[🎰] {player.name} wanted to bet {bet_amount} but is broke!"
+        if (player.get_chips_value() + player.balance) < bet_amount:
+            print(
+                f"[🎰] {player.name} wanted to bet but only {player.balance + player.get_chips_value()} available!")
+            self._sell_from_inventory(player)
+            return True
+        while player.get_chips_value() < bet_amount:
+            print(
+                f"[🎰] {player.name} wanted to bet but there is not enough chips. Try to convert them from your balance.")
+            self._convert_money(player)
 
-        # 45% шанс выигрыша, 55% проигрыша (казино должно выигрывать)
+        # 45/55 chance
         if random() < 0.45:
-            # Выигрыш: от 1.5x до 3x
-            multiplier = random() * 1.5 + 1.5  # 1.5 - 3.0
+            # Win from 1.5 to 3.0 times
+            multiplier = random() * 1.5 + 1.5
             win_amount = int(bet_amount * multiplier)
             player.income(win_amount)
             logger.info(
                 f"Player {player.name} won {win_amount} from bet {bet_amount}")
-            return f"🎰 BET WIN: {player.name} bet {bet_amount} and won {win_amount}!"
+            print(
+                f"[🎰 Bet Win]: {player.name} bet {bet_amount} and won {win_amount}!")
+            return True
         else:
-            # Проигрыш
+            # Lose
             player.lesion(bet_amount)
             logger.info(f"Player {player.name} lost {bet_amount} in bet")
-            return f"🎰 BET LOSS: {player.name} lost {bet_amount} in a bet!"
+            print(f"[🎰 Bet Loss]: {player.name} lost {bet_amount} in a bet!")
+            return True
 
     def goose_attack_event(self) -> str:
         '''Goose attacks a player'''
