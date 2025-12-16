@@ -9,6 +9,15 @@ DEFAULT_PLAYER_LUCK = 100
 
 DENOMINATIONS = [1, 5, 25, 100]
 
+SYMBOLS = ['🍎', '🍊', '🍌', '🍍', '🍒']
+MULTIPLIERS = {
+    '🍎': 0.5,
+    '🍊': 2,
+    '🍌': 4,
+    '🍍': 8,
+    '🍒': 15
+}
+
 ADVERTISEMENTS = [
     "Lost your shirt at roulette? We'll take your apartment too! Instant loans, zero questions asked! "
     "(Terms: you might need to live in the roulette wheel.)",

@@ -20,21 +20,37 @@ class Player:
         '''Total chips value'''
         return self.chips.total_value()
 
-    def income(self, amount: int):
-        '''Increase amount of players chips by the given number.'''
+    def balance_income(self, amount: int):
+        '''Increase amount of players money by the given number.'''
         self.balance += amount
+        logger.info(f"Added {amount} to {self.name} balance")
+        print(f"Added {amount} to {self.name} balance!")
+
+    def balance_lesion(self, amount: int):
+        '''Decrease amount of players money by the given number.'''
+        self.balance -= amount
+        logger.info(f"Removed {amount} from {self.name} balance")
+        print(f"Removed {amount} from {self.name} balance!")
+
+    def chips_income(self, amount: int):
+        '''Increase amount of players chips by the given number.'''
         self.chips.add(amount)
         logger.info(f"Added {amount} to {self.name} balance")
         print(f"Added {amount} to your balance!")
 
-    def lesion(self, amount: int):
+    # def chips_lesion(self, amount: int):
+    #     '''Decrease amount of players chips by the given number'''
+    #     if self.chips.remove(amount):
+    #         pass
+    #     else:
+    #         logger.info(
+    #             f"{self.name} have not enough money to less it by {amount}")
+
+    def chips_lesion(self, amount: int):
         '''Decrease amount of players chips by the given number'''
-        if self.chips.remove(amount):
-            self.balance -= amount
-            logger.info(f"Removed {amount} from {self.name} balance")
-        else:
-            logger.info(
-                f"{self.name} have not enough money to less it by {amount}")
+        self.chips.remove(amount)
+        logger.info(
+            f"{self.name} have not enough money to less it by {amount}")
 
     def lose_health(self, loss: int):
         '''Lose health'''
