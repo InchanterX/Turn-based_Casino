@@ -1,6 +1,6 @@
-import time
+from time import sleep
 from src.infrastructure.constants import SYMBOLS, MULTIPLIERS
-from random import choice
+from random import choices
 from src.infrastructure.logger import logger
 from src.infrastructure.events_instruments import EventsInstruments
 
@@ -62,37 +62,79 @@ class BetEvent:
         logger.info(
             f"Successfully converted {player.name}'s {amount} money to chips.")
 
-    @staticmethod
-    def _fancy_spin(duration: int = 3):
+    def _fancy_spin(self, player):
         print("\n🎰 Spin...")
+
+        weights = self._get_symbol_weights(player.luck)
 
         # Start fast and slowly slow it
         delays = [0.05] * 10 + [0.1] * 5 + [0.2] * 3 + [0.3, 0.5, 0.7]
 
         # Spin animation
         for delay in delays:
-            temp_slots = [choice(SYMBOLS) for _ in range(3)]
+            temp_slots = choices(SYMBOLS, weights=weights, k=3)
             print(f"\r🎰|{'|'.join(temp_slots)}|", end="", flush=True)
-            time.sleep(delay)
+            sleep(delay)
 
         # Final result
-        final_slots = [choice(SYMBOLS) for _ in range(3)]
+        final_slots = choices(SYMBOLS, weights=weights, k=3)
         print(f"\r🎰|{'|'.join(final_slots)}|")
 
         return final_slots
 
-    def _calculate_payout(self, slots):
+    def _get_symbol_weights(self, luck: int):
+        """
+        Return recalculated weight of symbols according to player's luck
+        """
+        # Base case (luck: 0)
+        base_weights = {
+            '🍎': 40,   # 40%
+            '🍊': 30,   # 30%
+            '🍌': 15,   # 15%
+            '🍍': 10,   # 10%
+            '🍒': 5     # 5%
+        }
+
+        # Luck coefficient per unit
+        luck_multiplier = 0.5
+
+        weights = []
+        for symbol in SYMBOLS:
+            base_weight = base_weights[symbol]
+
+            # increase weight of good symbols, decrease chance of bad
+            if symbol == '🍎':
+                adjusted = base_weight * (1 - luck * luck_multiplier / 100)
+            elif symbol == '🍊':
+                adjusted = base_weight * (1 - luck * luck_multiplier / 200)
+            elif symbol == '🍌':
+                adjusted = base_weight
+            elif symbol == '🍍':
+                adjusted = base_weight * (1 + luck * luck_multiplier / 100)
+            else:
+                adjusted = base_weight * (1 + luck * luck_multiplier / 50)
+
+            weights.append(max(1, int(adjusted)))
+
+        return weights
+
+    def _calculate_payout(self, slots, bet_amount: int) -> int:
         # Count payout
         if slots[0] == slots[1] == slots[2]:
             symbol = slots[0]
-            return MULTIPLIERS[symbol]*100
+            return int(bet_amount * MULTIPLIERS[symbol] * 3)  # x3 for 3
         elif slots[0] == slots[1] or slots[1] == slots[2]:
             symbol = slots[1]
-            return MULTIPLIERS[symbol]*20
+            return int(bet_amount * MULTIPLIERS[symbol] * 1.5)  # x1.5 for 2
         elif slots[0] == slots[2]:
             symbol = slots[0]
-            return MULTIPLIERS[symbol]*20
+            return int(bet_amount * MULTIPLIERS[symbol] * 1.5)  # x1.5 for 2
         else:
+            # Grants for valuable symbols
+            valuable_symbols = ['🍍', '🍒']
+            for symbol in valuable_symbols:
+                if symbol in slots:
+                    return int(bet_amount * 0.1)  # return 10% of bet
             return 0
 
     def player_bet_event(self) -> bool:
@@ -116,29 +158,10 @@ class BetEvent:
                 f"[🎰] {player.name} wanted to bet but there is not enough chips. Try to convert them from your balance.")
             self._convert_money(player)
 
-        slots = self._fancy_spin()
-        # slots = [random.choice(SYMBOLS) for _ in range(3)]
-        # print(f"🎰|{'|'.join(slots)}|")
+        slots = self._fancy_spin(player)
+        sleep(0.5)
         player.chips_lesion(bet_amount)
-        payout = self._calculate_payout(slots)
+        payout = self._calculate_payout(slots, bet_amount)
         print(payout)
-        player.chips_lesion(payout)
+        player.chips_income(payout)
         return True
-
-        # # 45/55 chance
-        # if random() < 0.45:
-        #     # Win from 1.5 to 3.0 times
-        #     multiplier = random() * 1.5 + 1.5
-        #     win_amount = int(bet_amount * multiplier)
-        #     player.chips_income(win_amount)
-        #     logger.info(
-        #         f"Player {player.name} won {win_amount} from bet {bet_amount}")
-        #     print(
-        #         f"[🎰 Bet Win]: {player.name} bet {bet_amount} and won {win_amount}!")
-        #     return True
-        # else:
-        #     # Lose
-        #     player.chips_lesion(bet_amount)
-        #     logger.info(f"Player {player.name} lost {bet_amount} in bet")
-        #     print(f"[🎰 Bet Loss]: {player.name} lost {bet_amount} in a bet!")
-        #     return True

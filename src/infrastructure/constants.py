@@ -10,12 +10,13 @@ DEFAULT_PLAYER_LUCK = 100
 DENOMINATIONS = [1, 5, 25, 100]
 
 SYMBOLS = ['🍎', '🍊', '🍌', '🍍', '🍒']
+WEIGHTS = [35, 25, 15, 10, 5]  # possibilities
 MULTIPLIERS = {
-    '🍎': 0.5,
-    '🍊': 2,
-    '🍌': 4,
-    '🍍': 8,
-    '🍒': 15
+    '🍎': 1,    # x1
+    '🍊': 2,    # x2
+    '🍌': 3,    # x3
+    '🍍': 5,    # x5
+    '🍒': 10,   # x10
 }
 
 ADVERTISEMENTS = [
