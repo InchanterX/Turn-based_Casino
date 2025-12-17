@@ -13,7 +13,7 @@ class Player:
         self.luck = DEFAULT_PLAYER_LUCK
         self.health = DEFAULT_PLAYER_HEALTH
         self.chips = ChipsCollection()
-        self.effects = EffectsCollection()
+        self.effects = EffectsCollection(self)
         self.inventory = InventoryCollection()
 
     def get_chips_value(self):
@@ -56,14 +56,23 @@ class Player:
         '''Lose health'''
         self.health -= loss
         logger.info(f"Player {self.name} lost {loss}HP.")
-        print(f"You've lost {loss}HP!")
+
+    def increase_health(self, gain: int):
+        '''Lose health'''
+        self.health += gain
+        logger.info(f"Player {self.name} lost {gain}HP.")
 
     def decrease_luck(self, loss: int):
         '''Decrease luck'''
         self.luck -= loss
         logger.info(
             f"Player {self.name} lost {loss} units of luck. Current state: {self.luck}.")
-        print("You've lost some units of luck!")
+
+    def increase_luck(self, gain: int):
+        '''Increase luck'''
+        self.luck += gain
+        logger.info(
+            f"Player {self.name} lost {gain} units of luck. Current state: {self.luck}.")
 
     def is_alive(self) -> bool:
         return self.health > 0

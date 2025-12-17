@@ -1,4 +1,3 @@
-from src.infrastructure.player import Player
 from random import random
 
 
@@ -56,8 +55,6 @@ class GooseGroup:
         else:
             print(f"🦢🦢 Group {self.name} dealt {total_damage} damage!")
 
-        return total_damage
-
     def __repr__(self):
         goose_names = ", ".join(goose.name for goose in self.geese)
         return f"GooseGroup['{self.name}': {goose_names}]"
@@ -73,11 +70,10 @@ class Goose:
         self.balance = 0
         self.steal_amount = 10
 
-    def attack_player(self, player):
+    def attack_player(self, player, goose_collection=None):
         """Just heat a player"""
         player.lose_health(self.damage)
         print(f"🦢 {self.name} hit {player.name} for {self.damage}HP!")
-        return self.damage
 
     def steal_from_player(self, player):
         """Steal money from player if it possible"""
@@ -120,7 +116,6 @@ class WarGoose(Goose):
 
         player.lose_health(crit_damage)
         print(f"⚔️ {self.name} hit {player.name} for {crit_damage}HP!")
-        return crit_damage
 
     def __repr__(self):
         return f"WarGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount}, CRIT={self.critical_chance})"
@@ -137,7 +132,6 @@ class HonkGoose(Goose):
         player.effects.add("honk_damage", duration=3, power=self.damage)
         print(
             f"📢 {self.name} honked on {player.name}! Applied honk damage status for 3 steps!")
-        return self.damage
 
     def __repr__(self):
         return f"HonkGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount})"
@@ -156,7 +150,6 @@ class UnluckyGoose(Goose):
         player.decrease_luck(self.bad_luck_power)
         print(
             f"☠️ Goose {self.name} cursed {player.name} with bad luck! -{self.bad_luck_power} units of luck for the next five steps!")
-        return self.damage
 
     def __repr__(self):
         return f"UnluckyGoose('{self.name}', HP={self.health}, STEAL={self.steal_amount}, BAD_LUCK={self.bad_luck_power})"
@@ -169,24 +162,48 @@ class GoldenGoose(Goose):
         self.money_multiplier = 0.5
         self.steal_amount = 0
 
-    def attack_player(self, player):
+    def attack_player(self, player, goose_collection=None):
         """Gather some percent of money from other geese according to money_multiplier"""
         total_collected = 0
-        geese_robbed = []
 
-        for goose in geese_collection:
+        if goose_collection:
+            geese_robbed = []
+            for goose in goose_collection:
+                if goose != self and goose.balance > 0:
+                    collected = int(goose.balance * self.money_multiplier)
+                    # prevent negative balance
+                    collected = min(collected, goose.balance)
+                    goose.balance -= collected
+                    self.balance += collected
+                    total_collected += collected
+                    geese_robbed.append(f"{goose.name}(-{collected})")
+
+            if geese_robbed:
+                print(
+                    f"💰 {self.name} collected {total_collected} from: {', '.join(geese_robbed)}")
+
+        # reduced_damage = max(1, self.damage // 2)
+        # player.lose_health(reduced_damage)
+        # print(f"🦢 {self.name} hit {player.name} for {reduced_damage}HP!")
+
+        if total_collected > 0:
+            bonus = total_collected // 4  # 25%
+            player.chips_income(bonus)
+            print(f"💰 {self.name} shared {bonus} with {player.name}!")
+
+        return total_collected  # Возвращаем сколько собрали
+
+    def collect_from_geese(self, goose_collection):
+        """Отдельный метод для сбора денег без атаки игрока"""
+        total = 0
+        for goose in goose_collection:
             if goose != self and goose.balance > 0:
-                collected = int(goose.balance * self.gold_multiplier)
+                collected = int(goose.balance * self.money_multiplier)
+                collected = min(collected, goose.balance)
                 goose.balance -= collected
                 self.balance += collected
-                total_collected += collected
-                geese_robbed.append(goose.name)
-
-        if geese_robbed:
-            print(
-                f"💰 {self.name} collected {total_collected} from geese: {', '.join(geese_robbed)}")
-
-        return total_collected
+                total += collected
+        return total
 
     def __repr__(self):
-        return f"GoldenGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount}, MULT={self.money_multiplier})"
+        return f"GoldenGoose('{self.name}', HP={self.health}, BAL={self.balance}, MULT={self.money_multiplier})"

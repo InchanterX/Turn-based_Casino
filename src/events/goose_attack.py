@@ -1,5 +1,6 @@
 from src.infrastructure.logger import logger
 from src.infrastructure.events_instruments import EventsInstruments
+from src.infrastructure.goose import GoldenGoose
 
 
 class GooseAttackEvent:
@@ -15,7 +16,7 @@ class GooseAttackEvent:
         '''Literally get random goose'''
         return self.instruments.random_goose()
 
-    def goose_attack_event(self) -> str:
+    def goose_attack_event(self):
         '''Goose attacks a player'''
 
         player = self._get_player()
@@ -25,28 +26,12 @@ class GooseAttackEvent:
             return "[🦢 Goose] No players or geese for attack"
 
         # Attack
-        damage = goose.attack_player(player)
-
-        # Stole prepare
-        stolen = 0
-        if hasattr(goose, 'steal_from_player'):
-            stolen = goose.steal_from_player(player)
-
-        # Golden goose case
-        collected_from_geese = 0
-        if hasattr(goose, 'collect_from_geese'):
-            collected_from_geese = goose.collect_from_geese(
-                self.casino.geese)
-
-        message_parts = []
-        message_parts.append(
-            f"[🦢 Goose] {goose.name} attacked {player.name} for {damage} damage!")
-
-        if stolen > 0:
-            message_parts.append(f"stole {stolen}")
-
-        if collected_from_geese > 0:
-            message_parts.append(
-                f"collected {collected_from_geese} from other geese")
-
-        return " | ".join(message_parts)
+        if isinstance(goose, GoldenGoose):
+            collected = goose.attack_player(player, self.casino.geese)
+            if collected > 0:
+                return f"[🦢💰] {goose.name} атаковал {player.name}, собрал {collected} с гусей и поделился!"
+            else:
+                return f"[🦢] {goose.name} атаковал {player.name} но все гуси бедные!"
+        else:
+            goose.attack_player(player)
+            return f"[🦢] {goose.name} атаковал {player.name} на {goose.damage} урона!"
