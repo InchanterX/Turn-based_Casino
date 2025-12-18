@@ -3,6 +3,8 @@ from src.infrastructure.events_instruments import EventsInstruments
 
 
 class GooseStealEvent:
+    '''Chose a random goose to execute its steal skill'''
+
     def __init__(self, casino):
         self.casino = casino
         self.instruments = EventsInstruments(casino)

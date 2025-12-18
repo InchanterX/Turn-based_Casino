@@ -34,17 +34,6 @@ class Casino:
         else:
             print(f"({step_number + 1})[Event]: {result}")
 
-    # def geese_unite_event(self):
-    #     if len(self.geese) >= 2:
-    #         goose1 = choice(self.geese)
-    #         goose2 = choice([goose for goose in self.geese])
-
-    #         group = goose1 + goose2
-    #         self.geese.remove(goose1)
-    #         self.geese.remove(goose2)
-    #         self.geese.append(group)
-    #         print(f"Geese {goose1} and {goose2} gathered to group!")
-
     def players_status_check(self) -> bool:
         for i in range(self.players.__len__()):
             if not self.players.__getitem__(i).is_alive():

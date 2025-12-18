@@ -6,6 +6,8 @@ from src.infrastructure.events_instruments import EventsInstruments
 
 
 class BetEvent:
+    '''Ask player to make a bet, display the spin animation of roulette, count the result based on luck level, change user balance'''
+
     def __init__(self, casino):
         self.casino = casino
         self.instruments = EventsInstruments(casino)

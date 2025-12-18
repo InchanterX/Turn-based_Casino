@@ -1,3 +1,4 @@
+from random import randint
 from src.infrastructure.logger import logger
 from src.infrastructure.collections.chips import ChipsCollection
 from src.infrastructure.collections.effects import EffectsCollection
@@ -38,14 +39,6 @@ class Player:
         logger.info(f"Added {amount} to {self.name} balance")
         print(f"Added {amount} to your balance!")
 
-    # def chips_lesion(self, amount: int):
-    #     '''Decrease amount of players chips by the given number'''
-    #     if self.chips.remove(amount):
-    #         pass
-    #     else:
-    #         logger.info(
-    #             f"{self.name} have not enough money to less it by {amount}")
-
     def chips_lesion(self, amount: int):
         '''Decrease amount of players chips by the given number'''
         self.chips.remove(amount)
@@ -74,7 +67,12 @@ class Player:
         logger.info(
             f"Player {self.name} lost {gain} units of luck. Current state: {self.luck}.")
 
+    def roll_the_dice(self) -> int:
+        '''Return value of dice roll from 1 to 6'''
+        return randint(1, 6)
+
     def is_alive(self) -> bool:
+        '''Return players state: True/False - Alive or Not'''
         return self.health > 0
 
     def _repr__(self) -> str:

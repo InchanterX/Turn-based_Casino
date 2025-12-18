@@ -3,6 +3,8 @@ from random import choice
 
 
 class GeeseUniteEvent:
+    '''Unite geese into groups using magical method'''
+
     def __init__(self, casino):
         self.casino = casino
 

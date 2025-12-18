@@ -4,6 +4,8 @@ from src.infrastructure.goose import GoldenGoose
 
 
 class GooseAttackEvent:
+    '''Chose a random goose to execute its attack skill'''
+
     def __init__(self, casino):
         self.casino = casino
         self.instruments = EventsInstruments(casino)
@@ -29,9 +31,12 @@ class GooseAttackEvent:
         if isinstance(goose, GoldenGoose):
             collected = goose.attack_player(player, self.casino.geese)
             if collected > 0:
-                return f"[🦢💰] {goose.name} атаковал {player.name}, собрал {collected} с гусей и поделился!"
+                return f"[🦢💰] {goose.name} attacked {player.name}, собрал {collected} с гусей и поделился!"
             else:
-                return f"[🦢] {goose.name} атаковал {player.name} но все гуси бедные!"
+                return f"[🦢] {goose.name} attacked {player.name} but all geese are poor!"
         else:
-            goose.attack_player(player)
+            input(
+                f"{goose.name} is going to strick {player.name}! Try to parry it by throwing a dice.\n>")
+            value = player.roll_the_dice()
+            goose.attack_player(player, value)
             return f"[🦢] {goose.name} атаковал {player.name} на {goose.damage} урона!"

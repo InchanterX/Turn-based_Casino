@@ -14,26 +14,14 @@ class Events:
     def __init__(self, casino):
         self._logger = logger
         self.casino = casino
-
-        # list of available events with possibilities
-        # self.events = [
-        #     ("player_bet", 60, self.player_bet_event),
-        #     ("goose_attack", 20, self.goose_attack_event),
-        #     ("goose_steal", 15, self.goose_steal_event),
-        #     ("geese_unite", 10, self.geese_unite_event),
-        #     ("advertisement_break", 30, self.advertisement_event),
-        #     ("stroke", 1, self.stroke_event),
-        #     ("golden_goose_bonus", 5, self.golden_goose_event),
-        #     # ("lucky_win", 5, self.lucky_win_event)
-        # ]
         self.events = [
             ("bet", 60, BetEvent(casino).player_bet_event),
-            ("goose_attack", 100, GooseAttackEvent(casino).goose_attack_event),
+            ("goose_attack", 30, GooseAttackEvent(casino).goose_attack_event),
             ("goose_steal", 15, GooseStealEvent(casino).goose_steal_event),
             ("geese_unite", 10, GeeseUniteEvent(casino).geese_unite_event),
             ("advertisement", 30, AdvertisementEvent(casino).advertisement_event),
-            ("stroke", 1, StrokeEvent(casino).stroke_event),
-            ("golden_goose", 5, GoldenGooseEvent(casino).golden_goose_event)
+            ("stroke", 1000, StrokeEvent(casino).stroke_event),
+            # ("golden_goose", 5, GoldenGooseEvent(casino).golden_goose_event)
         ]
 
     def get_random_event(self):

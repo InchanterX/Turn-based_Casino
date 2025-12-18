@@ -4,6 +4,8 @@ from src.infrastructure.casino import Casino
 
 
 class Facade:
+    '''Execute the simulation itself by calling appropriate function for asked amount of times'''
+
     def __init__(self):
         pass
 

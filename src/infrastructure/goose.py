@@ -7,57 +7,131 @@ class GooseGroup:
         self.name = f"Group of {len(geese_list)} geese"
 
     @property
+    def alive_geese(self):
+        """Get list of alive geese"""
+        return [goose for goose in self.geese if goose.is_alive()]
+
+    def remove_dead_geese(self):
+        """Remove dead geese from group"""
+        initial_count = len(self.geese)
+        self.geese = self.alive_geese
+
+        if len(self.geese) < initial_count:
+            dead_count = initial_count - len(self.geese)
+            print(f"[💀] {dead_count} geese from group had died {self.name}!")
+
+            if self.geese:
+                self.name = f"Group of {len(self.geese)} geese"
+            else:
+                self.name = "Empty group (all dead)"
+
+    @property
     def total_health(self):
-        """Geese group health in total"""
-        return sum(goose.health for goose in self.geese)
+        """Geese group health in total (only alive)"""
+        return sum(goose.health for goose in self.alive_geese)
 
     @property
     def total_damage(self):
-        """Geese group damage in total"""
-        return sum(goose.damage for goose in self.geese)
+        """Geese group damage in total (only alive)"""
+        return sum(goose.damage for goose in self.alive_geese)
 
     @property
     def total_balance(self):
-        """Geese group total balance"""
+        """
+        Geese group total balance (all geese, including dead).
+        Saved for Golden Goose
+        """
         return sum(goose.balance for goose in self.geese)
 
     @property
-    def steal_amount(self):
-        """Geese group steal in total"""
-        return sum(goose.steal_amount for goose in self.geese)
+    def total_alive_balance(self):
+        """Geese group balance of alive geese only"""
+        return sum(goose.balance for goose in self.alive_geese)
 
-    def attack_player(self, player):
+    @property
+    def steal_amount(self):
+        """Geese group steal in total (only alive)"""
+        return sum(goose.steal_amount for goose in self.alive_geese)
+
+    @property
+    def is_alive(self) -> bool:
+        """Check if any goose in group is alive"""
+        return any(goose.is_alive() for goose in self.geese)
+
+    def attack_player(self, player, damage_multiplier: int = 1):
         """Attack player with all powers"""
+        had_dead = self.remove_dead_geese()
+
+        # No goose alive
+        if not self.is_alive:
+            print(
+                f"🦢 Group is unable to attack {self.name} - everyone is dead!")
+
+        if had_dead:
+            print(f"🦢 {len(self.geese)} geese left in group")
+
         total_damage = 0
         total_stolen = 0
         effects_applied = []
 
-        for goose in self.geese:
-            # Attack
-            damage = goose.attack_player(player)
+        for goose in self.alive_geese:
+            if isinstance(goose, GoldenGoose):
+                damage = goose.attack_player(player, damage_multiplier, [self])
+            else:
+                damage = goose.attack_player(player, damage_multiplier)
+
             total_damage += damage
 
-            # Steal
+            print(f"🦢🦢 Group {self.name} dealt {total_damage} damage!")
+
+        # remove extra
+        unique_effects = set(effects_applied)
+        if unique_effects:
+            print(f"⚡ Примененные эффекты: {', '.join(unique_effects)}")
+
+        return total_damage, total_stolen
+
+    def steal_from_player(self, player):
+        """Group steal one by one"""
+        total_stolen = 0
+        for goose in self.alive_geese:
             stolen = goose.steal_from_player(player)
             if stolen > 0:
                 total_stolen += stolen
-                print(f"💰 {goose.name} stole {stolen} from {player.name}!")
-
-            # record effects
-            if isinstance(goose, HonkGoose):
-                effects_applied.append("honk")
-            elif isinstance(goose, UnluckyGoose):
-                effects_applied.append("bad_luck")
+                print(f"💰 {goose.name} украл {stolen} у {player.name}")
 
         if total_stolen > 0:
-            print(
-                f"🦢🦢 Group {self.name} dealt {total_damage} damage and stole {total_stolen} total!")
-        else:
-            print(f"🦢🦢 Group {self.name} dealt {total_damage} damage!")
+            print(f"🦢🦢 Группа {self.name} украла {total_stolen} всего!")
+
+        return total_stolen
+
+    def __add__(self, other):
+        """Unite geese"""
+        if isinstance(other, Goose):
+            self.geese.append(other)
+            self.name = f"Group of {len(self.geese)} geese"
+            print(f"🦢 {other.name} присоединился к группе {self.name}")
+            return self
+        elif isinstance(other, GooseGroup):
+            self.geese.extend(other.geese)
+            self.name = f"Group of {len(self.geese)} geese"
+            print(f"🦢🦢 Группы объединились в {self.name}")
+            return self
+        return NotImplemented
 
     def __repr__(self):
-        goose_names = ", ".join(goose.name for goose in self.geese)
-        return f"GooseGroup['{self.name}': {goose_names}]"
+        if not self.geese:
+            return "GooseGroup[Empty]"
+
+        alive_count = len(self.alive_geese)
+        dead_count = len(self.geese) - alive_count
+
+        goose_info = []
+        for goose in self.geese:
+            status = "💀" if not goose.is_alive() else "❤️"
+            goose_info.append(f"{status}{goose.name}({goose.health}HP)")
+
+        return f"GooseGroup['{self.name}': {', '.join(goose_info)} | 🎯{self.total_damage} ⚡{self.steal_amount} 💰{self.total_balance}]"
 
 
 class Goose:
@@ -70,10 +144,37 @@ class Goose:
         self.balance = 0
         self.steal_amount = 10
 
-    def attack_player(self, player, goose_collection=None):
-        """Just heat a player"""
-        player.lose_health(self.damage)
-        print(f"🦢 {self.name} hit {player.name} for {self.damage}HP!")
+    def is_alive(self) -> bool:
+        '''Check if goose is alive'''
+        return self.health > 0
+
+    def lose_health(self, amount: int):
+        '''Reduce goose health'''
+        self.health = max(0, self.health - amount)
+        if amount > 0:
+            print(
+                f"[🦢] Goose {self.name} lost {amount} HP! ({self.health} HP left)")
+
+    def attack_player(self, player, damage_multiplier: int, goose_collection=None):
+        """Heat a player with a possibility of parring"""
+        base_damage = self.damage
+
+        if damage_multiplier >= 1:
+            actual_damage = max(1, base_damage // damage_multiplier)
+        else:
+            actual_damage = base_damage
+
+        player.lose_health(actual_damage)
+        print(f"🦢 {self.name} hit player {player.name} for {actual_damage}HP!")
+
+        if damage_multiplier >= 4:
+            parry_ratio = (damage_multiplier - 3) / 3
+            reflected_damage = int(actual_damage * parry_ratio)
+
+            if reflected_damage > 0:
+                self.lose_health(reflected_damage)
+                print(
+                    f"⚔️ {player.name} parried attack! {self.name} lost {reflected_damage}HP!")
 
     def steal_from_player(self, player):
         """Steal money from player if it possible"""
@@ -106,16 +207,32 @@ class WarGoose(Goose):
         self.critical_chance = 0.3
         self.steal_amount = 5
 
-    def attack_player(self, player):
+    def attack_player(self, player, damage_multiplier: int):
         """Hit player with a possibility of dealing crit damage"""
+        base_damage = self.damage
 
+        # crit damage
         crit_damage = self.damage
         if random() < self.critical_chance:
             crit_damage = int(self.damage * 2)
             print(f"💥 Goose {self.name} hit you with crit damage!")
 
-        player.lose_health(crit_damage)
-        print(f"⚔️ {self.name} hit {player.name} for {crit_damage}HP!")
+        if damage_multiplier >= 1:
+            actual_damage = max(1, base_damage // damage_multiplier)
+        else:
+            actual_damage = base_damage
+
+        player.lose_health(actual_damage)
+        print(f"⚔️ {self.name} hit {player.name} for {actual_damage}HP!")
+
+        if damage_multiplier >= 4:
+            parry_ratio = (damage_multiplier - 3) / 3
+            reflected_damage = int(actual_damage * parry_ratio)
+
+            if reflected_damage > 0:
+                self.lose_health(reflected_damage)
+                print(
+                    f"⚔️ Player {player.name} parried attack! {self.name} lost {reflected_damage}HP!")
 
     def __repr__(self):
         return f"WarGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount}, CRIT={self.critical_chance})"
@@ -127,7 +244,7 @@ class HonkGoose(Goose):
         self.damage = 3
         self.steal_amount = 7
 
-    def attack_player(self, player):
+    def attack_player(self, player, damage_multiplier: int = 1):
         """Goose's honk apply long damage for 3 steps"""
         player.effects.add("honk_damage", duration=3, power=self.damage)
         print(

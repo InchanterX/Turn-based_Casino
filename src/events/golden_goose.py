@@ -5,6 +5,8 @@ from src.infrastructure.events_instruments import EventsInstruments
 
 
 class GoldenGooseEvent:
+    '''Event of golden'''
+
     def __init__(self, casino):
         self.casino = casino
         self.instruments = EventsInstruments(casino)

@@ -4,6 +4,8 @@ from src.infrastructure.logger import logger
 
 
 class AdvertisementEvent():
+    '''Display advertisement to the console and ask to skip it'''
+
     def __init__(self, casino):
         self.casino = casino
 
