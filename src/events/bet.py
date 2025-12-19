@@ -141,6 +141,7 @@ class BetEvent:
 
     def player_bet_event(self) -> bool:
         '''Event of player making a bet'''
+        # print("BET")
         player = self._get_player()
         if player is None:
             logger.warning("No players to place bets.")

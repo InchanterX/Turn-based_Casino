@@ -15,6 +15,7 @@ class StrokeEvent():
 
     def stroke_event(self) -> bool:
         '''Hit player with stroke'''
+        # print("STROKE")
         player = self._get_player()
         input(
             f"{player.name} fills a terrible pain... Try to parry it by throwing a dice.\n>")

@@ -2,7 +2,7 @@ from src.infrastructure.collections.geese import GooseCollection
 from src.infrastructure.collections.casino import CasinoCollection
 from src.infrastructure.collections.players import PlayerCollection
 from src.infrastructure.player import Player
-from src.infrastructure.goose import WarGoose, HonkGoose, UnluckyGoose, GoldenGoose
+from src.infrastructure.goose import WarGoose, HonkGoose, UnluckyGoose, GoldenGoose, GooseGroup
 from src.infrastructure.events import Events
 from src.infrastructure.logger import logger
 from src.infrastructure.constants import DEFAULT_BALANCE
@@ -34,24 +34,45 @@ class Casino:
         else:
             print(f"({step_number + 1})[Event]: {result}")
 
-    def players_status_check(self) -> bool:
-        for i in range(self.players.__len__()):
-            if not self.players.__getitem__(i).is_alive():
+    def geese_status_check(self) -> bool:
+        for goose in self.geese:
+            if not goose.is_alive():
                 logger.info(
-                    f"Player {self.players.__getitem__(i).name} is dead.\nStopping simulation.")
+                    f"Goose {goose.name} is dead.")
+                self.geese.remove(goose)
+
+        return True
+
+    def players_status_check(self) -> bool:
+        for i in range(len(self.players)):
+            if not self.players[i].is_alive():
+                logger.info(
+                    f"Player {self.players[i].name} is dead.\nStopping simulation.")
                 print("Stopping simulation.")
-                self.players.remove(self.players.__getitem__(i))
+                self.players.remove(self.players[i])
                 return True
 
             # debug information
             print(
-                f"Name: {self.players.__getitem__(i).name},\n Balance: {self.players.__getitem__(i).balance},\n Luck: {self.players.__getitem__(i).luck},\n Health: {self.players.__getitem__(i).health}")
+                f"Name: {self.players[i].name},\n Balance: {self.players[i].balance},\n Luck: {self.players[i].luck},\n Health: {self.players[i].health}")
             print(
-                f"Total chips: {self.players.__getitem__(i).get_chips_value()}, Chips list: {self.players.__getitem__(i).chips.get_info()}")
+                f"Total chips: {self.players[i].get_chips_value()}, Chips list: {self.players[i].chips.get_info()}")
             print(
-                f"Effects applied: {self.players.__getitem__(i).effects.__repr__()}")
+                f"Effects applied: {self.players[i].effects.__repr__()}")
+            print("----------------------------------")
+            for goose in self.geese:
+                if isinstance(goose, GooseGroup):
+                    print(
+                        f"Moniker: {goose.name}, health: {goose.total_health}, damage: {goose.total_damage}, total_balance: {goose.total_balance}, alive_balance: {goose.total_alive_balance}, steal: {goose.steal_amount}, alive: {goose.alive_geese}")
+                else:
+                    print(
+                        f"Moniker: {goose.name}, health: {goose.health}, damage: {goose.damage}, balance: {goose.balance}, steal: {goose.steal_amount}")
+            print("----------------------------------")
         return False
 
     def make_effects_step(self):
-        for i in range(self.players.__len__()):
-            self.players.__getitem__(i).effects.make_step()
+        for i in range(len(self.players)):
+            self.players[i].effects.make_step()
+
+    def proceed(self):
+        input("Proceed? ")

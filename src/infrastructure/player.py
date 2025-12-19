@@ -37,7 +37,7 @@ class Player:
         '''Increase amount of players chips by the given number.'''
         self.chips.add(amount)
         logger.info(f"Added {amount} to {self.name} balance")
-        print(f"Added {amount} to your balance!")
+        print(f"[💰]: Added {amount} to your balance!")
 
     def chips_lesion(self, amount: int):
         '''Decrease amount of players chips by the given number'''
@@ -69,7 +69,10 @@ class Player:
 
     def roll_the_dice(self) -> int:
         '''Return value of dice roll from 1 to 6'''
-        return randint(1, 6)
+        result = randint(1, 6)
+        logger.info(f"Player {self.name} rolled {result}.")
+        print(f"[🎲] You rolled {result}!")
+        return result
 
     def is_alive(self) -> bool:
         '''Return players state: True/False - Alive or Not'''

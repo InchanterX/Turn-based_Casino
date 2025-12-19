@@ -20,9 +20,11 @@ class Facade:
 
         print("----------------------------------")
         for step in range(steps):
+            print(f"[Step: {step}]")
             casino.make_effects_step()
             if casino.players_status_check():
                 break
-            casino.random_event(step)
-            print(f"[Step: {step}]")
+            while casino.random_event(step):
+                continue
+            casino.proceed()
             print("----------------------------------")

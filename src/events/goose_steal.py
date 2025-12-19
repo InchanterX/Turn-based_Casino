@@ -19,7 +19,7 @@ class GooseStealEvent:
 
     def goose_steal_event(self) -> str:
         '''Goose steals money from player'''
-
+        # print("STEAL")
         player = self._get_player()
         goose = self._get_goose()
 

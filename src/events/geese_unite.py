@@ -8,16 +8,19 @@ class GeeseUniteEvent:
     def __init__(self, casino):
         self.casino = casino
 
-    def geese_unite_event(self) -> str:
+    def geese_unite_event(self) -> bool:
         '''Two geese unite into a group'''
+        # print("UNITE")
         if len(self.casino.geese) < 2:
-            return "[🦢 Geese] Not enough geese to unite"
+            print("[🦢 Geese]: Not enough geese to unite")
+            return False
 
         goose1 = choice(self.casino.geese)
         other_geese = [
             goose for goose in self.casino.geese if goose != goose1]
         if not other_geese:
-            return "[🦢 Geese] No other geese to unite with"
+            print("[🦢 Geese]: No other geese to unite with")
+            return False
 
         goose2 = choice(other_geese)
 
@@ -31,6 +34,8 @@ class GeeseUniteEvent:
 
         logger.info(
             f"Geese {goose1.name} and {goose2.name} united into group")
+        # print(
+        #     f"[🦢🦢 Unite]: {goose1.name} and {goose2.name} united into {group.name}!")
 
         # In case of GoldenGoose party
         if hasattr(group, 'geese'):
@@ -38,6 +43,7 @@ class GeeseUniteEvent:
                 if hasattr(goose, 'collect_from_geese'):
                     collected = goose.collect_from_geese(self.casino.geese)
                     if collected > 0:
-                        return f"[🦢🦢💰 Unite]: {goose1.name}+{goose2.name} formed {group.name}! Golden goose collected {collected}!"
-
-        return f"[🦢🦢 Unite]: {goose1.name} and {goose2.name} united into {group.name}!"
+                        print(
+                            f"[🦢🦢💰 Unite]: {goose1.name}+{goose2.name} formed {group.name}! Golden goose collected {collected}!")
+                        return True
+        return True

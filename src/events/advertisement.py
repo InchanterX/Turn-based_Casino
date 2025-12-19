@@ -15,6 +15,7 @@ class AdvertisementEvent():
 
     def advertisement_event(self) -> bool:
         '''Print advertisement to the CLI'''
+        # print("ADV")
         logger.info(
             "Displayed advertisement to the player.")
         print(f"[📺 Adv] {choice(ADVERTISEMENTS)}")

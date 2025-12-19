@@ -4,7 +4,7 @@ from random import randint
 from src.events.advertisement import AdvertisementEvent
 from src.events.bet import BetEvent
 from src.events.geese_unite import GeeseUniteEvent
-from src.events.golden_goose import GoldenGooseEvent
+# from src.events.golden_goose import GoldenGooseEvent
 from src.events.goose_attack import GooseAttackEvent
 from src.events.goose_steal import GooseStealEvent
 from src.events.stroke import StrokeEvent
@@ -15,12 +15,12 @@ class Events:
         self._logger = logger
         self.casino = casino
         self.events = [
-            ("bet", 60, BetEvent(casino).player_bet_event),
+            ("bet", 50, BetEvent(casino).player_bet_event),
             ("goose_attack", 30, GooseAttackEvent(casino).goose_attack_event),
-            ("goose_steal", 15, GooseStealEvent(casino).goose_steal_event),
+            ("goose_steal", 0, GooseStealEvent(casino).goose_steal_event),
             ("geese_unite", 10, GeeseUniteEvent(casino).geese_unite_event),
-            ("advertisement", 30, AdvertisementEvent(casino).advertisement_event),
-            ("stroke", 1000, StrokeEvent(casino).stroke_event),
+            ("advertisement", 20, AdvertisementEvent(casino).advertisement_event),
+            ("stroke", 1, StrokeEvent(casino).stroke_event),
             # ("golden_goose", 5, GoldenGooseEvent(casino).golden_goose_event)
         ]
 
