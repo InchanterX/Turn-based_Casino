@@ -4,7 +4,6 @@ from random import randint
 from src.events.advertisement import AdvertisementEvent
 from src.events.bet import BetEvent
 from src.events.geese_unite import GeeseUniteEvent
-# from src.events.golden_goose import GoldenGooseEvent
 from src.events.goose_attack import GooseAttackEvent
 from src.events.goose_steal import GooseStealEvent
 from src.events.stroke import StrokeEvent

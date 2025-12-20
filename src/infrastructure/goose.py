@@ -108,20 +108,19 @@ class GooseGroup:
         return total_stolen
 
     def __add__(self, other):
-        """Unite geese"""
+        """Unite geese - Returns a new group"""
         if isinstance(other, Goose):
-            self.geese.append(other)
-            self.name = f"Group of {len(self.geese)} geese"
+            new_geese = self.geese + [other]
             logger.info(f"{other.name} united with {self.name} to group.")
             print(f"[🦢] {other.name} united with {self.name}.")
-            return self
+            return GooseGroup(new_geese)
         elif isinstance(other, GooseGroup):
-            self.geese.extend(other.geese)
-            self.name = f"Group of {len(self.geese)} geese"
+            new_geese = self.geese + other.geese
             logger.info(
                 f"{other.name} united with {self.name} to a new group.")
-            print(f"[🦢🦢]: Groups united to {self.name}")
-            return self
+            print(
+                f"[🦢🦢]: {other.name} united with {self.name} to a group.")
+            return GooseGroup(new_geese)
         return NotImplemented
 
     def __repr__(self):
@@ -226,8 +225,7 @@ class Goose:
         elif isinstance(other, GooseGroup):
             logger.info(f"{other.name} united with {self.name} to group.")
             print(f"[🦢] {other.name} united with {self.name}.")
-            other.geese.append(self)
-            return other
+            return GooseGroup(other.geese + [self])
         return NotImplemented
 
     def __repr__(self):

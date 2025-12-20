@@ -2,7 +2,8 @@ from src.infrastructure.collections.geese import GooseCollection
 from src.infrastructure.collections.casino import CasinoCollection
 from src.infrastructure.collections.players import PlayerCollection
 from src.infrastructure.player import Player
-from src.infrastructure.goose import Goose, WarGoose, HonkGoose, UnluckyGoose, GoldenGoose
+from src.infrastructure.goose import Goose
+from src.infrastructure.goose import WarGoose, HonkGoose, UnluckyGoose, GoldenGoose
 from src.infrastructure.events import Events
 from src.infrastructure.logger import logger
 from src.infrastructure.constants import DEFAULT_BALANCE

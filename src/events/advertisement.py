@@ -9,9 +9,9 @@ class AdvertisementEvent():
     def __init__(self, casino):
         self.casino = casino
 
-    def _skip_advertisement(self):
-        '''Ask player to continue by skipping advertisement'''
-        input("Skip add?\n > ")
+    # def _skip_advertisement(self):
+    #     '''Ask player to continue by skipping advertisement'''
+    #     input("Skip add?\n > ")
 
     def advertisement_event(self) -> bool:
         '''Print advertisement to the CLI'''
