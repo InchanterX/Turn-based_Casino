@@ -300,3 +300,76 @@ class TestGooseSystem:
 
         # Check
         assert total == 60
+
+    def test_goose_attack_multiplier_branches(self):
+        # Prepare
+        goose = Goose("Tester")
+        player = Mock()
+
+        # Action and Check
+        goose.attack_player(player, damage_multiplier=0)
+        player.lose_health.assert_called_with(5)
+
+        goose.attack_player(player, damage_multiplier=2)
+        player.lose_health.assert_called_with(2)
+
+    def test_goose_steal_skill_issue(self):
+        # Prepare
+        goose = Goose("Weakling")
+        goose.steal_amount = 0
+        player = Mock()
+        # Action and Check
+        assert goose.steal_from_player(player) == 0
+
+    def test_war_goose_failed_hit(self):
+        # Prepare
+        war = WarGoose("Miser")
+        player = Mock()
+        # Action
+        damage = war.attack_player(player, damage_multiplier=10)
+        # Check
+        assert damage == 0
+
+    def test_goose_group_add_not_implemented(self):
+        group = GooseGroup([])
+        assert group.__add__(123) == NotImplemented
+
+    def test_goose_unite_with_group(self):
+        g1 = Goose("Solo")
+        group = GooseGroup([Goose("Member")])
+        new_group = g1 + group
+        assert len(new_group.geese) == 2
+        assert new_group.geese[-1] == g1
+
+    def test_golden_goose_collect_logic_extended(self):
+        golden = GoldenGoose("King")
+
+        poor_goose = Goose("Poor")
+        poor_goose.balance = 0
+        golden.attack_player(Mock(), goose_collection=[poor_goose])
+        assert golden.balance == 0
+
+        empty_group = GooseGroup([])
+        golden._collect_from_group(empty_group, 100)
+
+        rich_goose = Goose("Rich")
+        rich_goose.balance = 100
+        group = GooseGroup([rich_goose])
+        golden._collect_from_group(group, 50)
+        assert rich_goose.balance == 50
+
+    def test_goose_group_repr_complex(self):
+        g1 = Goose("A")
+        g2 = Goose("B")
+        g2.health = 0
+        group = GooseGroup([g1, g2])
+        res = repr(group)
+        assert "❤️A" in res
+        assert "💀B" in res
+
+    def test_war_goose_crit_and_parry(self):
+        war = WarGoose("Elite")
+        player = Mock()
+        with patch('src.infrastructure.goose.random', return_value=0.0):
+            damage = war.attack_player(player, damage_multiplier=1)
+            assert damage == 20

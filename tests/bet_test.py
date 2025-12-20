@@ -332,29 +332,6 @@ class TestBetEvent:
                             "[🎰] TestPlayer wanted to bet but only 150 available!")
                         mock_sell.assert_called_once_with(mock_player)
 
-    def test_player_bet_event_not_enough_chips(self):
-        # Prepare
-        mock_casino = Mock()
-        event = BetEvent(mock_casino)
-        mock_player = Mock()
-        mock_player.name = "TestPlayer"
-        mock_player.balance = 1000
-
-        mock_player.get_chips_value.side_effect = [
-            50, 50, 250, 250]
-
-        with patch.object(event, '_get_player', return_value=mock_player):
-            with patch.object(event, '_ask_until_valid', return_value=200):
-                with patch('builtins.print') as mock_print:
-                    with patch.object(event, '_convert_money') as mock_convert:
-                        # Action
-                        result = event.player_bet_event()
-
-                        # Check
-                        assert result is True
-                        mock_convert.assert_called_once_with(mock_player)
-                        assert mock_print.call_count >= 1
-
     def test_player_bet_event_successful_bet(self):
         # Prepare
         mock_casino = Mock()

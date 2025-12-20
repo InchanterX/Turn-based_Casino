@@ -8,12 +8,14 @@ class CasinoCollection:
         self._fluctuation = 0
 
     def gain(self, value):
+        '''Casino gains money'''
         self._balance += value
         self._fluctuation += value
         logger.info(
             f"Casino earned {value}. Money in total: {self._balance}. Current fluctuation: {self._fluctuation}")
 
     def loss(self, value):
+        '''Casino loses money'''
         self._balance -= value
         self._fluctuation -= value
         logger.info(

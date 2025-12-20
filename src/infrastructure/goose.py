@@ -3,6 +3,8 @@ from random import random
 
 
 class GooseGroup:
+    '''Group of geese that act together'''
+
     def __init__(self, geese_list):
         self.geese = geese_list
         self.name = f"Group of {len(geese_list)} geese"
@@ -22,8 +24,11 @@ class GooseGroup:
             print(f"[💀] {dead_count} geese from group had died {self.name}!")
 
             if self.geese:
+                logger.info(
+                    f"Removed {dead_count} dead geese from group {self.name}.")
                 self.name = f"Group of {len(self.geese)} geese"
             else:
+                logger.info(f"All geese in group {self.name} are dead.")
                 self.name = "Empty group (all dead)"
 
     @property
@@ -90,6 +95,8 @@ class GooseGroup:
         # if unique_effects:
         #     print(f"[⚡] Apply effects: {', '.join(unique_effects)}")
 
+        logger.info(
+            f"Goose group {self.name} attacked player {player.name} for {total_damage} damage.")
         return total_damage, total_stolen
 
     def steal_from_player(self, player):
@@ -104,7 +111,8 @@ class GooseGroup:
         if total_stolen > 0:
             print(
                 f"[🦢🦢] {self.name} totally stole {total_stolen} from player {player.name}!")
-
+        logger.info(
+            f"Goose group {self.name} stole {total_stolen} from player {player.name}.")
         return total_stolen
 
     def __add__(self, other):
@@ -124,6 +132,7 @@ class GooseGroup:
         return NotImplemented
 
     def __repr__(self):
+        '''String representation of the goose group'''
         if not self.geese:
             return "GooseGroup[Empty]"
 
@@ -150,12 +159,16 @@ class Goose:
 
     def is_alive(self) -> bool:
         '''Check if goose is alive'''
+        logger.debug(
+            f"Checking if goose {self.name} is alive: {self.health} HP")
         return self.health > 0
 
     def lose_health(self, amount: int):
         '''Reduce goose health'''
         self.health = max(0, self.health - amount)
         if amount > 0:
+            logger.info(
+                f"Goose {self.name} lost {amount} HP! ({self.health} HP left)")
             print(
                 f"[🦢]: Goose {self.name} lost {amount} HP! ({self.health} HP left)")
 
@@ -184,6 +197,8 @@ class Goose:
                 self.lose_health(parry_damage)
                 print(
                     f"[⚔️]: Player {player.name} parried attack! {self.name} lost {parry_damage}HP!")
+        logger.info(
+            f"Goose {self.name} attacked player {player.name} for {actual_damage} damage.")
         return actual_damage
 
     def steal_from_player(self, player) -> int:
@@ -229,10 +244,13 @@ class Goose:
         return NotImplemented
 
     def __repr__(self):
+        '''String representation of the goose'''
         return f"Goose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount})"
 
 
 class WarGoose(Goose):
+    '''War Goose with critical hits'''
+
     def __init__(self, name: str):
         super().__init__(name)
         self.health = 15
@@ -259,27 +277,38 @@ class WarGoose(Goose):
             actual_damage = base_damage
 
         if actual_damage <= 0:
+            logger.info(
+                f"Goose {self.name} failed to hit player {player.name}.")
             print(f"[⚔️]: {self.name} failed to hit {player.name}!")
         elif is_critical:
+            logger.info(
+                f"Goose {self.name} hit player {player.name} with {actual_damage} crit damage!")
             print(
                 f"[💥]: Goose {self.name} hit you with {actual_damage} crit damage!")
         else:
             player.lose_health(actual_damage)
+            logger.info(
+                f"Goose {self.name} hit player {player.name} for {actual_damage} damage.")
             print(
                 f"[⚔️]: {self.name} hit {player.name} for {actual_damage}HP!")
 
         if damage_multiplier >= 4:
             if parry_damage > 0:
                 self.lose_health(parry_damage)
+                logger.info(
+                    f"Goose {self.name} lost {parry_damage} HP due to parry by player {player.name}.")
                 print(
                     f"[⚔️]: Player {player.name} parried attack! {self.name} lost {parry_damage}HP!")
         return actual_damage
 
     def __repr__(self):
+        '''String representation of the war goose'''
         return f"WarGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount}, CRIT={self.critical_chance})"
 
 
 class HonkGoose(Goose):
+    '''Honk Goose that apply damage over time'''
+
     def __init__(self, name: str):
         super().__init__(name)
         self.damage = 3
@@ -288,11 +317,14 @@ class HonkGoose(Goose):
     def attack_player(self, player, damage_multiplier: int = 1, goose_collection=None) -> int:
         """Goose's honk apply long damage for 3 steps"""
         player.effects.add("honk_damage", duration=3, power=self.damage)
+        logger.info(
+            f"Goose {self.name} honked on player {player.name}, applying honk damage for 3 steps.")
         print(
             f"[📢]: {self.name} honked on {player.name}! Applied honk damage status for 3 steps!")
         return 0
 
     def __repr__(self):
+        '''String representation of the honk goose'''
         return f"HonkGoose('{self.name}', HP={self.health}, DMG={self.damage}, STEAL={self.steal_amount})"
 
 
@@ -307,11 +339,14 @@ class UnluckyGoose(Goose):
         """Apply unlucky effect for 5 steps"""
         player.effects.add("bad_luck", duration=5, power=self.bad_luck_power)
         player.decrease_luck(self.bad_luck_power)
+        logger.info(
+            f"Goose {self.name} cursed player {player.name} with bad luck for 5 steps.")
         print(
             f"[☠️]: Goose {self.name} cursed {player.name} with bad luck! -{self.bad_luck_power} units of luck for the next five steps!")
         return 0
 
     def __repr__(self):
+        '''String representation of the unlucky goose'''
         return f"UnluckyGoose('{self.name}', HP={self.health}, STEAL={self.steal_amount}, BAD_LUCK={self.bad_luck_power})"
 
 
@@ -350,7 +385,8 @@ class GoldenGoose(Goose):
 
         self.balance += total//2
         player.chips_income(total//2)
-
+        logger.info(
+            f"Golden Goose {self.name} collected {total} from other geese, gave half to player {player.name}.")
         return 0
 
     def _collect_from_group(self, group, amount):
@@ -381,4 +417,5 @@ class GoldenGoose(Goose):
                 first_goose.balance -= remaining_amount
 
     def __repr__(self):
+        '''String representation of the golden goose'''
         return f"GoldenGoose('{self.name}', HP={self.health}, BAL={self.balance}, MULT={self.money_multiplier})"

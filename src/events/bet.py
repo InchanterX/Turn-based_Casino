@@ -14,6 +14,7 @@ class BetEvent:
 
     def _get_player(self):
         '''Literally get random player'''
+        logger.debug("Selecting random player for betting event.")
         return self.instruments.random_player()
 
     def _convert_to_int(self, input_str: str) -> int | None:
@@ -22,6 +23,7 @@ class BetEvent:
         Otherwise return None
         '''
         try:
+            logger.debug(f"Converting input {input_str} to int.")
             return int(input_str)
         except ValueError:
             logger.exception(
@@ -81,7 +83,8 @@ class BetEvent:
         # Final result
         final_slots = choices(SYMBOLS, weights=weights, k=3)
         print(f"\r🎰|{'|'.join(final_slots)}|")
-
+        logger.info(
+            f"Player {player.name} spun the slots: {'|'.join(final_slots)}")
         return final_slots
 
     def _get_symbol_weights(self, luck: int):
@@ -121,6 +124,7 @@ class BetEvent:
         return weights
 
     def _calculate_payout(self, slots, bet_amount: int) -> int:
+        '''Calculate payout based on slots and bet amount'''
         # Count payout
         if slots[0] == slots[1] == slots[2]:
             symbol = slots[0]
@@ -157,6 +161,8 @@ class BetEvent:
             self._sell_from_inventory(player)
             return True
         while player.get_chips_value() < bet_amount:
+            logger.info(
+                f"Player {player.name} has insufficient chips for the bet. Initiating conversion from balance.")
             print(
                 f"[🎰] {player.name} wanted to bet but there is not enough chips. Try to convert them from your balance.")
             self._convert_money(player)
@@ -167,4 +173,6 @@ class BetEvent:
         payout = self._calculate_payout(slots, bet_amount)
         print(payout)
         player.chips_income(payout)
+        logger.info(
+            f"Player {player.name} bet {bet_amount} and won {payout} from the slots.")
         return True

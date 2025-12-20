@@ -39,9 +39,9 @@ def main() -> None:
 
     except KeyboardInterrupt:
         print("Exiting the console.")
-    # except Exception as e:
-    #     logger.error(e)
-    #     print(e)
+    except Exception as e:
+        logger.error(e)
+        print(e)
 
 
 if __name__ == "__main__":

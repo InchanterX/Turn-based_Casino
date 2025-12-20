@@ -11,10 +11,12 @@ class GooseStealEvent:
 
     def _get_player(self):
         '''Literally get random player'''
+        logger.debug("Selecting random player for goose steal")
         return self.instruments.random_player()
 
     def _get_goose(self):
         '''Literally get random goose'''
+        logger.debug("Selecting random goose for goose steal")
         return self.instruments.random_goose()
 
     def goose_steal_event(self) -> bool:

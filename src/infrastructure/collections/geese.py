@@ -6,21 +6,26 @@ class GooseCollection:
         self._geese = []
 
     def __getitem__(self, index):
+        '''Get a goose or a slice of geese from the collection'''
         if isinstance(index, slice):
             return type(self)(self._geese[index])
         return self._geese[index]
 
     def __len__(self):
+        '''Return the number of geese in the collection'''
         return len(self._geese)
 
     def __iter__(self):
+        '''Return an iterator over the geese in the collection'''
         return iter(self._geese)
 
     def append(self, goose):
+        '''Add a goose to the collection'''
         logger.info(f"Adding goose {goose.name} to collection.")
         self._geese.append(goose)
 
     def remove(self, goose):
+        '''Remove a goose from the collection'''
         logger.info(f"Removing goose {goose.name} from collection.")
         self._geese.remove(goose)
 

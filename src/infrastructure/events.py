@@ -33,7 +33,9 @@ class Events:
             current += possibility
             if result <= current:
                 event_instance = event_class
+                logger.debug(f"Selected event: {name}")
                 return event_instance
 
         # in case of exception
+        logger.warning("No event selected, defaulting to first event")
         return self.events[0][2]

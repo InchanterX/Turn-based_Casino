@@ -17,6 +17,7 @@ class Casino:
         self.event_system = Events(self)
 
     def register_default(self, user_name: str) -> None:
+        '''Register default player and geese in the casino'''
         # define player
         self.players.append(Player(user_name, DEFAULT_BALANCE))
 
@@ -27,26 +28,32 @@ class Casino:
         self.geese.append(HonkGoose("Noise"))
         self.geese.append(UnluckyGoose("Underdog"))
         self.geese.append(GoldenGoose("Sparkle"))
+        logger.info(
+            f"Registered default player {user_name} and default geese.")
 
     def random_event(self, step_number):
+        '''Execute a random event in the casino'''
         event_function = self.event_system.get_random_event()
         result = event_function()
         logger.info(f"Event executed with a result: {result}")
         if result:
+            logger.info(f"Event '{event_function.__name__}' was successful.")
             pass
         else:
+            '''Event failed or nothing happened'''
             print(f"({step_number + 1})[Event]: {result}")
 
     def geese_status_check(self) -> bool:
+        '''Check the status of all geese in the casino'''
         for goose in self.geese:
             if not goose.is_alive():
                 logger.info(
                     f"Goose {goose.name} is dead.")
                 self.geese.remove(goose)
-
         return True
 
     def players_status_check(self) -> bool:
+        '''Check the status of all players in the casino'''
         for i in range(len(self.players)):
             if not self.players[i].is_alive():
                 logger.info(
@@ -76,8 +83,10 @@ class Casino:
         return False
 
     def make_effects_step(self):
+        '''Make a step for all effects applied to players'''
         for i in range(len(self.players)):
             self.players[i].effects.make_step()
 
     def proceed(self):
+        '''Ask player to proceed to the next step in the casino'''
         input("Proceed? ")

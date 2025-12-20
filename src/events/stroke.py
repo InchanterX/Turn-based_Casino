@@ -11,6 +11,7 @@ class StrokeEvent():
 
     def _get_player(self):
         '''Literally get random player'''
+        logger.debug("Selecting random player for stroke event")
         return self.instruments.random_player()
 
     def stroke_event(self) -> bool:

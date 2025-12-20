@@ -35,10 +35,13 @@ class Chip:
     #     return available_chips
 
     def __repr__(self) -> str:
+        '''String representation of the chip'''
         return f"Chip({self.denomination}: {self.quantity})"
 
     def chip_total_value(self):
         '''Return total price of the denomination chips'''
+        logger.debug(
+            f"Calculating total value for {self.quantity} chips of denomination {self.denomination}")
         return self.denomination * self.quantity
 
 
@@ -78,6 +81,7 @@ class ChipsCollection:
         total = 0
         for chip in self.chips.values():
             total += chip.chip_total_value()
+        logger.debug(f"Total chips value calculated: {total}")
         return total
 
     def add(self, amount: int):
@@ -118,4 +122,5 @@ class ChipsCollection:
         return ", ".join(info) if info else "no chips"
 
     def __repr__(self) -> str:
+        '''String representation of chips collection'''
         return f"Chips: {self.get_info()}"

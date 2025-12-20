@@ -44,6 +44,7 @@ def test_bad_luck_behavior_on_readd():
 def test_make_step_applies_and_removes():
     # Prepare
     p = FakePlayer(health=20)
+    p.name = "TestPlayer"
     ec = EffectsCollection(p)
 
     # Action and Check

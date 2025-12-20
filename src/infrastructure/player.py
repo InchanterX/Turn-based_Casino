@@ -19,6 +19,7 @@ class Player:
 
     def get_chips_value(self):
         '''Total chips value'''
+        logger.debug(f"Calculating total chips value for player {self.name}.")
         return self.chips.total_value()
 
     def balance_income(self, amount: int):
