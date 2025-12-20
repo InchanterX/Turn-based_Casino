@@ -18,18 +18,21 @@ class GooseAttackEvent:
         '''Literally get random goose'''
         return self.instruments.random_goose()
 
-    def goose_attack_event(self):
+    def goose_attack_event(self) -> bool:
         '''Goose attacks a player'''
         player = self._get_player()
         goose = self._get_goose()
 
         if player is None or goose is None:
-            return "[🦢 Goose] No players or geese for attack"
+            print("[🦢 Goose] No players or geese for attack")
+            return False
         # Attack
         if isinstance(goose, GoldenGoose):
             collected = goose.attack_player(player, 1, self.casino.geese)
             if collected > 0:
-                return f"[🦢💰] {goose.name} attacked {player.name}, collected {collected} from other geese!"
+                print(
+                    f"[🦢💰] {goose.name} attacked {player.name}, collected {collected} from other geese!")
+                return True
             else:
                 print(
                     f"[🦢] {goose.name} wanted to share with {player.name} but all geese are poor!")

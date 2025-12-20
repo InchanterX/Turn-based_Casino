@@ -99,7 +99,7 @@ class GooseGroup:
             stolen = goose.steal_from_player(player)
             if stolen > 0:
                 total_stolen += stolen
-                print(f"[💰] {goose.name} stole {stolen} from {player.name}")
+                # print(f"[💰] {goose.name} stole {stolen} from {player.name}")
 
         if total_stolen > 0:
             print(
@@ -147,7 +147,7 @@ class Goose:
         self.health = 20
         self.damage = 5
         self.balance = 0
-        self.steal_amount = 10
+        self.steal_amount = 30
 
     def is_alive(self) -> bool:
         '''Check if goose is alive'''
@@ -158,7 +158,7 @@ class Goose:
         self.health = max(0, self.health - amount)
         if amount > 0:
             print(
-                f"[🦢] Goose {self.name} lost {amount} HP! ({self.health} HP left)")
+                f"[🦢]: Goose {self.name} lost {amount} HP! ({self.health} HP left)")
 
     def attack_player(self, player, damage_multiplier: int, goose_collection=None) -> int:
         """Heat a player with a possibility of parring"""
@@ -168,7 +168,7 @@ class Goose:
             actual_damage = max(1, base_damage // damage_multiplier)
         elif damage_multiplier >= 4:
             actual_damage = 0
-            reduction_ratio = 1.0 / (damage_multiplier - 2)
+            reduction_ratio = 1.0 / (7 - damage_multiplier)
             parry_damage = max(1, int(base_damage * reduction_ratio))
         else:
             actual_damage = base_damage
@@ -190,12 +190,32 @@ class Goose:
     def steal_from_player(self, player) -> int:
         """Steal money from player if it possible"""
         if self.steal_amount <= 0:
+            logger.info(f"Goose {self.name} doesn't have enough steal power.")
+            print(f"[🦢 Steal]: {self.name} have a skill issue.")
             return 0
 
         if player.get_chips_value() >= self.steal_amount:
-            if player.lesion(self.steal_amount):
-                self.balance += self.steal_amount
-                return self.steal_amount
+            # if player.chips_lesion(self.steal_amount):
+            player.chips_lesion(self.steal_amount)
+            self.balance += self.steal_amount
+            logger.info(
+                f"Goose {self.name} stole {self.steal_amount} chips from player {player.name}.")
+            print(
+                f"[💰 Steal]: {self.name} stole {self.steal_amount} chips from {player.name}.")
+            return self.steal_amount
+        elif player.balance >= self.steal_amount:
+            # if player.balance_lesion(self.steal_amount):
+            player.balance_lesion(self.steal_amount)
+            self.balance += self.steal_amount
+            logger.info(
+                f"Goose {self.name} stole {self.steal_amount} money from player {player.name}.")
+            print(
+                f"[💰 Steal]: {self.name} stole {self.steal_amount} money from {player.name}.")
+            return self.steal_amount
+        logger.info(
+            f"Goose {self.name} wanted to stile from player {player.name} but player is poor.")
+        print(
+            f"[💰 Steal]: {self.name} wanted to stile from {player.name} but player is poor.")
         return 0
 
     def __add__(self, other):
@@ -220,7 +240,7 @@ class WarGoose(Goose):
         self.health = 15
         self.damage = 10
         self.critical_chance = 0.3
-        self.steal_amount = 5
+        self.steal_amount = 20
 
     def attack_player(self, player, damage_multiplier: int, goose_collection=None) -> int:
         """Hit player with a possibility of dealing crit damage"""
@@ -265,7 +285,7 @@ class HonkGoose(Goose):
     def __init__(self, name: str):
         super().__init__(name)
         self.damage = 3
-        self.steal_amount = 7
+        self.steal_amount = 25
 
     def attack_player(self, player, damage_multiplier: int = 1, goose_collection=None) -> int:
         """Goose's honk apply long damage for 3 steps"""
@@ -283,7 +303,7 @@ class UnluckyGoose(Goose):
         super().__init__(name)
         self.bad_luck_power = 12
         self.health = 18
-        self.steal_amount = 10
+        self.steal_amount = 40
 
     def attack_player(self, player, damage_multiplier: int = 1, goose_collection=None) -> int:
         """Apply unlucky effect for 5 steps"""

@@ -17,14 +17,16 @@ class GooseStealEvent:
         '''Literally get random goose'''
         return self.instruments.random_goose()
 
-    def goose_steal_event(self) -> str:
+    def goose_steal_event(self) -> bool:
         '''Goose steals money from player'''
         # print("STEAL")
         player = self._get_player()
         goose = self._get_goose()
 
         if player is None or goose is None:
-            return "[💰 Steal]: No players or geese for stealing"
+            logger.warning("No players or geese for stealing")
+            print("[💰 Steal]: No players or geese for stealing")
+            return True
 
         # Actually steal
         if hasattr(goose, 'steal_from_player'):
@@ -32,17 +34,15 @@ class GooseStealEvent:
             if stolen > 0:
                 logger.info(
                     f"Goose {goose.name} stole {stolen} from {player.name}")
-
-                # Additional effects for UnluckyGoose
-                if goose.__class__.__name__ == "UnluckyGoose":
-                    luck_reduction = stolen // 2
-                    player.decrease_luck(luck_reduction)
-                    player.effects.add(
-                        "bad_luck", duration=3, power=luck_reduction)
-                    return f"[💰☠️ Curse]: {goose.name} stole {stolen} and cursed {player.name}'s luck (-{luck_reduction})!"
-
-                return f"[💰 Steal]: {goose.name} stole {stolen} from {player.name}!"
+                return True
             else:
-                return f"[💰 Steal]: {goose.name} failed to steal from {player.name}!"
+                logger.info(
+                    f"Goose {goose.name} failed to steal from {player.name}")
+                # print(
+                #     f"[💰 Steal]: {goose.name} failed to steal from {player.name}!")
+                return True
         else:
-            return f"[💰 Steal]: {goose.name} doesn't know how to steal!"
+            logger.warning(
+                f"Goose {goose.name} doesn't know how to steal!")
+            print(f"[💰 Steal]: {goose.name} doesn't know how to steal!")
+            return True

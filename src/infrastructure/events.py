@@ -16,8 +16,8 @@ class Events:
         self.casino = casino
         self.events = [
             ("bet", 50, BetEvent(casino).player_bet_event),
-            ("goose_attack", 30, GooseAttackEvent(casino).goose_attack_event),
-            ("goose_steal", 0, GooseStealEvent(casino).goose_steal_event),
+            ("goose_attack", 40, GooseAttackEvent(casino).goose_attack_event),
+            ("goose_steal", 40, GooseStealEvent(casino).goose_steal_event),
             ("geese_unite", 10, GeeseUniteEvent(casino).geese_unite_event),
             ("advertisement", 20, AdvertisementEvent(casino).advertisement_event),
             ("stroke", 1, StrokeEvent(casino).stroke_event),

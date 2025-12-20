@@ -90,15 +90,15 @@ class BetEvent:
         """
         # Base case (luck: 0)
         base_weights = {
-            '🍎': 40,   # 40%
+            '🍎': 30,   # 40%
             '🍊': 30,   # 30%
-            '🍌': 15,   # 15%
-            '🍍': 10,   # 10%
+            '🍌': 20,   # 15%
+            '🍍': 15,   # 10%
             '🍒': 5     # 5%
         }
 
         # Luck coefficient per unit
-        luck_multiplier = 0.5
+        luck_multiplier = 0.3
 
         weights = []
         for symbol in SYMBOLS:

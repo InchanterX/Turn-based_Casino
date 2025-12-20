@@ -2,7 +2,7 @@ from src.infrastructure.collections.geese import GooseCollection
 from src.infrastructure.collections.casino import CasinoCollection
 from src.infrastructure.collections.players import PlayerCollection
 from src.infrastructure.player import Player
-from src.infrastructure.goose import WarGoose, HonkGoose, UnluckyGoose, GoldenGoose, GooseGroup
+from src.infrastructure.goose import Goose, WarGoose, HonkGoose, UnluckyGoose, GoldenGoose
 from src.infrastructure.events import Events
 from src.infrastructure.logger import logger
 from src.infrastructure.constants import DEFAULT_BALANCE
@@ -20,7 +20,9 @@ class Casino:
         self.players.append(Player(user_name, DEFAULT_BALANCE))
 
         # define geese
-        self.geese.append(WarGoose("Warrior"))
+        self.geese.append(Goose("Goose"))
+        self.geese.append(WarGoose("Warrior1"))
+        self.geese.append(WarGoose("Warrior2"))
         self.geese.append(HonkGoose("Noise"))
         self.geese.append(UnluckyGoose("Underdog"))
         self.geese.append(GoldenGoose("Sparkle"))
@@ -52,22 +54,24 @@ class Casino:
                 self.players.remove(self.players[i])
                 return True
 
+            print(
+                f"Your balance: {self.players[i].balance}, Luck: {self.players[i].luck}, Health: {self.players[i].health}")
             # debug information
-            print(
-                f"Name: {self.players[i].name},\n Balance: {self.players[i].balance},\n Luck: {self.players[i].luck},\n Health: {self.players[i].health}")
-            print(
-                f"Total chips: {self.players[i].get_chips_value()}, Chips list: {self.players[i].chips.get_info()}")
-            print(
-                f"Effects applied: {self.players[i].effects.__repr__()}")
-            print("----------------------------------")
-            for goose in self.geese:
-                if isinstance(goose, GooseGroup):
-                    print(
-                        f"Moniker: {goose.name}, health: {goose.total_health}, damage: {goose.total_damage}, total_balance: {goose.total_balance}, alive_balance: {goose.total_alive_balance}, steal: {goose.steal_amount}, alive: {goose.alive_geese}")
-                else:
-                    print(
-                        f"Moniker: {goose.name}, health: {goose.health}, damage: {goose.damage}, balance: {goose.balance}, steal: {goose.steal_amount}")
-            print("----------------------------------")
+            # print(
+            #     f"Name: {self.players[i].name},\n Balance: {self.players[i].balance},\n Luck: {self.players[i].luck},\n Health: {self.players[i].health}")
+            # print(
+            #     f"Total chips: {self.players[i].get_chips_value()}, Chips list: {self.players[i].chips.get_info()}")
+            # print(
+            #     f"Effects applied: {self.players[i].effects.__repr__()}")
+            # print("----------------------------------")
+            # for goose in self.geese:
+            #     if isinstance(goose, GooseGroup):
+            #         print(
+            #             f"Moniker: {goose.name}, health: {goose.total_health}, damage: {goose.total_damage}, total_balance: {goose.total_balance}, alive_balance: {goose.total_alive_balance}, steal: {goose.steal_amount}, alive: {goose.alive_geese}")
+            #     else:
+            #         print(
+            #             f"Moniker: {goose.name}, health: {goose.health}, damage: {goose.damage}, balance: {goose.balance}, steal: {goose.steal_amount}")
+            # print("----------------------------------")
         return False
 
     def make_effects_step(self):

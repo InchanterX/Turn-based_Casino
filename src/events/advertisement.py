@@ -19,5 +19,5 @@ class AdvertisementEvent():
         logger.info(
             "Displayed advertisement to the player.")
         print(f"[📺 Adv] {choice(ADVERTISEMENTS)}")
-        self._skip_advertisement()
+        # self._skip_advertisement()
         return True
