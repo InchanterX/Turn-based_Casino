@@ -32,7 +32,6 @@ class Player:
         '''Decrease amount of players money by the given number.'''
         self.balance = max(0, self.balance - amount)
         logger.info(f"Removed {amount} from {self.name} balance")
-        # print(f"Removed {amount} from {self.name} balance!")
 
     def chips_income(self, amount: int):
         '''Increase amount of players chips by the given number.'''

@@ -31,3 +31,5 @@ class Facade:
                 continue
             casino.proceed()
             print("----------------------------------")
+        logger.info("Simulation ended.")
+        print("Simulation ended.")
